@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { proseOf, styleProblems } from './style.mjs';
 import { build } from './generate.mjs';
 import { problems as domProblems } from './clean-dom.mjs';
+import { keysOf } from './env.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/');
@@ -114,6 +115,20 @@ for (const f of DOCS.concat(ENTRY)) {
 const index = exists('docs/00-INDEX.md') ? read('docs/00-INDEX.md') : '';
 DOCS.filter((f) => f !== 'docs/00-INDEX.md' && !f.startsWith('docs/journal/'))
   .forEach((f) => { if (!index.includes(f.replace(/^docs\//, ''))) warnings.push(`${f}: missing from docs/00-INDEX.md`); });
+
+// Copy of a list held by a file: the Variables table of getting-started.md
+// lists exactly the keys of .env.example, in the same order.
+const envKeys = keysOf(path.join(ROOT, '.env.example'));
+const gsLines = read('docs/run/getting-started.md').split(String.fromCharCode(10));
+const varStart = gsLines.indexOf('## Variables');
+const varEnd = gsLines.findIndex((l, i) => i > varStart && l.startsWith('## '));
+const docKeys = gsLines.slice(varStart, varEnd < 0 ? undefined : varEnd)
+  .map((l) => (l.match(/^[|] `([A-Z0-9_]+)` [|]/) || [])[1]).filter(Boolean);
+if (docKeys.join() !== envKeys.join()) {
+  err('docs/run/getting-started.md', `Variables table (${docKeys.join(', ') || 'empty'}) differs from .env.example (${envKeys.join(', ')})`);
+}
+if (!ignored('.env')) err('.gitignore', '.env must be git-ignored');
+accents('.env.example', read('.env.example'));
 
 const gen = build();
 Object.keys(gen).forEach((g) => {

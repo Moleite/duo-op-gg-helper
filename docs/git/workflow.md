@@ -65,4 +65,4 @@ When in doubt, take the level above. Chrome refuses to reload a version that goe
 - Do not change the global git configuration.
 - Do not commit or push to `main`, and never force a push.
 - Do not delete the branch of an open PR: the PR would close without merging the work.
-- Check that `scripts/sql.local.json` and `DOM/raw-*` stay out of the commit before a `git add -A`.
+- Check that `.env` and `DOM/raw-*` stay out of the commit before a `git add -A`.

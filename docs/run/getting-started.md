@@ -42,18 +42,22 @@ Each Chrome profile keeps its own connection string: paste it once per profile.
 
 ## Variables
 
-| Variable | File | Role |
-| -------- | ---- | ---- |
-| `secrets.neonUrl` | `chrome.storage.local`, popup, Neon tab | Neon connection string of the player, read by the service worker only |
-| `databaseUrlRead` | `scripts/sql.local.json` | read-only connection string for `scripts/sql.mjs` ([`../database/sql-cli.md`](../database/sql-cli.md)) |
+All local secrets live in one file, `.env` at the root of the repository. `npm run setup` creates it from `.env.example`, and git ignores it. `src: scripts/setup.mjs#copyFileSync`
+
+| Variable | Role | Reader |
+| -------- | ---- | ------ |
+| `DUOGG_NEON_URL` | connection string of your player role (group `duogg-user`) | nobody: paste it in the popup, Neon tab, in each browser |
+| `DUOGG_NEON_URL_READ` | read-only connection string (role `duogg_agent`, group `duogg-read`) | `scripts/sql.mjs` ([`../database/sql-cli.md`](../database/sql-cli.md)) |
+
+The extension reads no file outside `extension/`, and no git-ignored file: the service worker keeps the player string in `chrome.storage.local` (key `secrets`). `npm run check` verifies that this table lists the keys of `.env.example`.
 
 ## Development machine
 
 ```bash
-npm ci            # linkedom and PGlite, for the tests only
+npm run setup     # .env from .env.example, then npm ci (linkedom and PGlite, for the tests only)
 npm test
 npm run check
 gh auth login     # Git and gh use the credential manager of the system
 ```
 
-Node 20 or later. The extension itself needs neither Node nor `npm ci`.
+Node 20 or later. The extension itself needs neither Node nor the dependencies.

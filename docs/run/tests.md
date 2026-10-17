@@ -48,6 +48,7 @@ node --test tests/rules.test.mjs   # one file
 | generation | `docs/generated/` equal to the output of `npm run gen` |
 | code | syntax, 400 lines per file, `innerHTML` forbidden in `extension/`, cited `docs/` paths |
 | extension | files of the manifest, of `background.js` and of `popup.html` present, version in the `x.y.z` format |
+| secrets | `.env` git-ignored, Variables table of `getting-started.md` equal to the keys of `.env.example` |
 | captures | no script and no real name in `DOM/` |
 
 CI (`.github/workflows/ci.yml`) runs `npm ci`, `npm run check` and `npm test` on each PR.

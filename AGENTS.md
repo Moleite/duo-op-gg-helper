@@ -97,4 +97,4 @@ tests/                   node:test, linkedom, PGlite
 
 ## Critical variables
 
-`secrets.neonUrl` (popup, Neon tab) · `databaseUrlRead` (`scripts/sql.local.json`). Role of each: [`docs/run/getting-started.md`](docs/run/getting-started.md#variables).
+All local secrets live in `.env` at the root, created from `.env.example` by `npm run setup`: `DUOGG_NEON_URL` · `DUOGG_NEON_URL_READ`. The extension reads none of them: the player string is pasted in the popup. Role of each: [`docs/run/getting-started.md`](docs/run/getting-started.md#variables).

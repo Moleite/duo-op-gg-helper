@@ -8,10 +8,10 @@
 ## Prerequisites
 
 1. A login role that is a member of `duogg-read`, created by `db/create-role.sql` with `v_group = 'duogg-read'`. Suggested name: `duogg_agent`.
-2. The file `scripts/sql.local.json`, git-ignored:
+2. Its connection string in `DUOGG_NEON_URL_READ`, in the `.env` file at the root (created by `npm run setup`, git-ignored):
 
-```json
-{ "databaseUrlRead": "postgresql://duogg_agent:<password>@<host>/neondb?sslmode=require" }
+```bash
+DUOGG_NEON_URL_READ=postgresql://duogg_agent:<password>@<host>/neondb?sslmode=require
 ```
 
 ## Running a query
