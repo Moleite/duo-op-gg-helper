@@ -1,0 +1,113 @@
+html, body {
+  margin: 0;
+}
+
+body {
+  background-color: #1c1c1f;
+  padding: 10px;
+  font-family: Roboto, sans-serif;
+}
+
+/* Header */
+.header {
+  background-color: #31313c;
+  display: flex;
+  align-items: center;
+  padding: 20px 50px 20px 10px;
+  margin: -10px -10px 10px -10px;
+}
+
+.logo {
+  margin: 0px 10px 0px 0px;
+}
+
+.logo_text {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  padding-top : 6px
+}
+
+.logo_link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo_link:hover {
+  opacity: 0.9;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.label {
+  color: #cfcfd6;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.select {
+  background-color: #2a2a33;
+  color: white;
+  border: 1px solid #3a3a45;
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 170px;
+  font-size: 13px;
+  outline: none;
+}
+
+.select:focus {
+  border-color: #00bba3;
+}
+
+/* Button */
+.button-menu {
+  background-color: #00bba3;
+  color: white;
+  font-weight: bold;
+  font-size: .875rem;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button-menu:hover {
+  background-color: #00998c;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tooltip-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background-color: #2a2a33;
+  border: 1px solid #3a3a45;
+  color: #cfcfd6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: default;
+  user-select: none;
+}

@@ -1,0 +1,2 @@
+# One summoner name per line
+# Case-insensitive
