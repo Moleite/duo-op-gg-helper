@@ -1,0 +1,25 @@
+# --- Secrets : jamais committes ---
+# Config locale de la machine : connection string Neon (modele : extension/config.local.example.js).
+extension/config.local.js
+scripts/sql.local.json
+
+# Captures DOM brutes : noms de joueurs, notes, fragments d'IP. Seule la version
+# pseudonymisee par scripts/clean-dom.mjs se committe (docs/archi/captures-dom.md).
+DOM/raw-*
+
+# Sondes et brouillons
+.tmp/
+
+# Dependances de test
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editeur
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/*
+!.vscode/extensions.json

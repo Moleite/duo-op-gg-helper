@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "DuoGG helper",
+  "version": "2.0.0",
+  "description": "Filters, sorting, blacklist and extended search for the duo table of duo.op.gg.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://duo.op.gg/*",
+    "https://*.neon.tech/*"
+  ],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "DuoGG helper",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://duo.op.gg/*"],
+      "run_at": "document_idle",
+      "js": [
+        "src/core/config.js",
+        "src/core/lol.js",
+        "src/core/announce.js",
+        "src/data/selectors.js",
+        "src/data/extract.js",
+        "src/data/api.js",
+        "src/filters/rules.js",
+        "src/filters/engine.js",
+        "src/store/model.js",
+        "src/store/client.js",
+        "src/ui/style.js",
+        "src/ui/dom.js",
+        "src/ui/rows.js",
+        "src/ui/more.js",
+        "src/ui/panel.js",
+        "src/ui/panel-filters.js",
+        "src/ui/panel-blacklist.js",
+        "src/ui/panel-announce.js",
+        "src/app.js"
+      ]
+    }
+  ]
+}
