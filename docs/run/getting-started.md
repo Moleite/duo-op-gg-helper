@@ -38,13 +38,13 @@ Without Neon, everything stays in this browser. To share the profiles and the bl
 2. Popup, Neon tab: paste the string, click Save, then Sync.
 3. Check the message `Connected as duogg_<player> on neondb`.
 
-Variant for several Chrome profiles on the same folder: copy `extension/config.local.example.js` to `extension/config.local.js` and fill `neonUrl`. The file is git-ignored.
+Each Chrome profile keeps its own connection string: paste it once per profile.
 
 ## Variables
 
 | Variable | File | Role |
 | -------- | ---- | ---- |
-| `neonUrl` | `extension/config.local.js` | Neon connection string of the player, read by the service worker only |
+| `secrets.neonUrl` | `chrome.storage.local`, popup, Neon tab | Neon connection string of the player, read by the service worker only |
 | `databaseUrlRead` | `scripts/sql.local.json` | read-only connection string for `scripts/sql.mjs` ([`../database/sql-cli.md`](../database/sql-cli.md)) |
 
 ## Development machine

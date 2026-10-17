@@ -38,8 +38,7 @@ The message `Connected as duogg_<player> on neondb` proves the role. It comes fr
 
 | Location | Reader |
 | -------- | ------ |
-| `chrome.storage.local`, key `secrets` | service worker only |
-| `extension/config.local.js` (optional, git-ignored) | service worker only |
+| `chrome.storage.local`, key `secrets`, typed in the popup | service worker only |
 
 A content script never reads it, and the service worker refuses a `secret.set` message from a tab. The `state` response does not contain it. `src: extension/src/store/worker.js#function fromTab(sender)`
 

@@ -122,7 +122,7 @@ Object.keys(gen).forEach((g) => {
 });
 
 // ---- Code ------------------------------------------------------------------
-const JS = walk(path.join(ROOT, 'extension'), (p) => /\.(js|html|css|json)$/.test(p) && !p.endsWith('config.local.js'));
+const JS = walk(path.join(ROOT, 'extension'), (p) => /\.(js|html|css|json)$/.test(p));
 const TOOLS = walk(path.join(ROOT, 'scripts'), (p) => /\.m?js$/.test(p))
   .concat(walk(path.join(ROOT, 'tests'), (p) => /\.m?js$/.test(p)))
   .concat(walk(path.join(ROOT, 'db'), (p) => /\.(sql|md)$/.test(p)));
@@ -144,8 +144,13 @@ for (const f of JS.concat(TOOLS)) {
 const manifest = JSON.parse(read('extension/manifest.json'));
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) err('extension/manifest.json', `version ${manifest.version}: x.y.z expected`);
 manifest.content_scripts.forEach((cs) => cs.js.forEach((j) => { if (!exists('extension/' + j)) err('extension/manifest.json', `missing file ${j}`); }));
-[...read('extension/background.js').matchAll(/'(src\/[^']+\.js)'/g)].forEach((m) => {
-  if (!exists('extension/' + m[1])) err('extension/background.js', `missing file ${m[1]}`);
+// Every importScripts path, not only src/: a missing file is listed in the
+// errors of the extension, even inside a try.
+const bg = (read('extension/background.js').match(/importScripts\([^)]*\)/g) || []).join(' ');
+[...bg.matchAll(/'([^']+\.js)'/g)].forEach((m) => {
+  const p = 'extension/' + m[1];
+  if (!exists(p)) err('extension/background.js', `importScripts of a file missing from the repository: ${m[1]}`);
+  else if (ignored(p)) err('extension/background.js', `importScripts of a git-ignored file: ${m[1]}`);
 });
 [...read('extension/popup.html').matchAll(/src="([^"]+)"/g)].forEach((m) => {
   if (!exists('extension/' + m[1])) err('extension/popup.html', `missing file ${m[1]}`);

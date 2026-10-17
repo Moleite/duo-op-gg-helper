@@ -1,23 +1,22 @@
-# --- Secrets : jamais committes ---
-# Config locale de la machine : connection string Neon (modele : extension/config.local.example.js).
-extension/config.local.js
+# --- Secrets: never committed ---
+# Read-only connection string of scripts/sql.mjs (docs/database/sql-cli.md).
 scripts/sql.local.json
 
-# Captures DOM brutes : noms de joueurs, notes, fragments d'IP. Seule la version
-# pseudonymisee par scripts/clean-dom.mjs se committe (docs/archi/captures-dom.md).
+# Raw DOM captures: player names, notes, IP fragments. Only the version
+# pseudonymized by scripts/clean-dom.mjs is committed (docs/architecture/dom-captures.md).
 DOM/raw-*
 
-# Sondes et brouillons
+# Probes and drafts
 .tmp/
 
-# Dependances de test
+# Test dependencies
 node_modules/
 
 # Logs
 *.log
 npm-debug.log*
 
-# OS / editeur
+# OS / editor
 .DS_Store
 Thumbs.db
 desktop.ini

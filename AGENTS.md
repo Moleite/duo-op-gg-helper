@@ -97,4 +97,4 @@ tests/                   node:test, linkedom, PGlite
 
 ## Critical variables
 
-`neonUrl` (`extension/config.local.js`, optional) · `databaseUrlRead` (`scripts/sql.local.json`). Role of each: [`docs/run/getting-started.md`](docs/run/getting-started.md#variables).
+`secrets.neonUrl` (popup, Neon tab) · `databaseUrlRead` (`scripts/sql.local.json`). Role of each: [`docs/run/getting-started.md`](docs/run/getting-started.md#variables).

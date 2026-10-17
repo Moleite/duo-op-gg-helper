@@ -18,7 +18,6 @@
     storage: globalThis.chrome && globalThis.chrome.storage ? globalThis.chrome.storage.local : null,
     fetch: (...a) => globalThis.fetch(...a),
     now: () => Date.now(),
-    localConfig: () => globalThis.DuoGGLocalConfig || {},
     // Delay between an operation and its push: a burst of clicks becomes one
     // wake-up of the database. 0 disables the automatic push (tests).
     pushDelayMs: 1500
@@ -39,7 +38,7 @@
 
   async function connection() {
     const r = await env.storage.get(['secrets']);
-    const url = (r.secrets && r.secrets.neonUrl) || env.localConfig().neonUrl || '';
+    const url = (r.secrets && r.secrets.neonUrl) || '';
     return D.neon.parse(url);
   }
 

@@ -1,6 +1,6 @@
 # Where a setting goes
 
-> **Answers**: I add a parameter, where does it go · who reads `config.local.js` · what `chrome.storage.local` holds.
+> **Answers**: I add a parameter, where does it go · where the connection string lives · what `chrome.storage.local` holds.
 > **Does not answer**: setting up a machine → [`../run/getting-started.md`](../run/getting-started.md) · the security of the connection string → [`../database/neon.md`](../database/neon.md)
 
 A setting lives at one of four levels. The level depends on who changes the value, and when.
@@ -10,7 +10,7 @@ A setting lives at one of four levels. The level depends on who changes the valu
 | code constant | algorithm thresholds, delays, page sizes | `DuoGG.config` (`extension/src/core/config.js`) | with the code, tested |
 | registry | filter rules, sorts, DOM selectors | `extension/src/filters/rules.js`, `extension/src/data/selectors.js` | with the code, generated documentation |
 | local database | filters, profiles, blacklist, panel position | `chrome.storage.local`, key `db` | at runtime, through the panel or the popup |
-| secret | Neon connection string | `chrome.storage.local`, key `secrets`, or `extension/config.local.js` | at installation |
+| secret | Neon connection string | `chrome.storage.local`, key `secrets`, typed in the popup | at installation |
 
 ## Choosing the level
 
@@ -32,11 +32,11 @@ A setting lives at one of four levels. The level depends on who changes the valu
 
 `src: extension/src/core/config.js#maxPagesPerClick: 4`
 
-## Role of `config.local.js`
+## No local configuration file
 
-The file is optional and git-ignored. Only the service worker loads it (`importScripts` inside a `try`). It shares a connection string between several Chrome profiles that load the same folder. `src: extension/background.js#importScripts('config.local.js')`
+The extension reads no git-ignored file. The connection string is typed once per Chrome profile, in the popup. `src: extension/src/store/worker.js#(r.secrets && r.secrets.neonUrl)`
 
-The value typed in the popup wins over the file: `secrets.neonUrl`, then `DuoGGLocalConfig.neonUrl`. `src: extension/src/store/worker.js#env.localConfig().neonUrl`
+⚠️ The service worker loads only versioned files. `importScripts` on a missing file fails at registration, and Chrome lists the failure in the errors of the extension, even inside a `try`. `npm run check` refuses such a path ([`../journal/2026-10-17-missing-config-file.md`](../journal/2026-10-17-missing-config-file.md)).
 
 ## Shape of the local database
 
