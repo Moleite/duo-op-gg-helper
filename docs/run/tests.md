@@ -33,6 +33,8 @@ node --test tests/rules.test.mjs   # one file
 
 `tests/helpers/fake-chrome.mjs` provides a fake `chrome.storage` with `onChanged`, and a fake Neon that runs each batch in PGlite under the role of the connection string.
 
+A test that waits for the worker uses `until(cond)`, never a fixed delay. A message to the worker goes through IndexedDB and `chrome.storage`: 30 ms pass on a development machine and fail on the CI runner. `src: tests/helpers/ext.mjs#export async function until(cond, ms = 2000)`
+
 ## Limits
 
 - The CSS, the layout and the dragging of the panel show only in Chrome.
