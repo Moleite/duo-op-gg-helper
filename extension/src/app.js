@@ -88,8 +88,13 @@
   }
 
   // ---- Store --------------------------------------------------------------
+  // Each change of st.db increments dbSeq. A response computed by the worker
+  // before a later op or onChanged is stale: it does not replace st.db.
+  let dbSeq = 0;
+  function setDb(db) { st.db = db; dbSeq++; }
+
   function op(o) {
-    st.db = D.model.applyOp(st.db, o, Date.now());
+    setDb(D.model.applyOp(st.db, o, Date.now()));
     recompute();
     return D.client.op(o).then((r) => { if (r) st.neon = r.neon; }).catch((e) => {
       st.more.error = e.message;
@@ -99,9 +104,11 @@
   }
 
   function pageOpen(account) {
+    const seq = dbSeq;
     D.client.send({ type: 'page.open', account: account || null }).then((r) => {
       if (!r) return;
-      st.db = r.db; st.neon = r.neon;
+      if (seq === dbSeq) setDb(r.db);
+      st.neon = r.neon;
       recompute();
     }).catch((e) => { st.more.error = e.message; recompute(); });
   }
@@ -187,8 +194,9 @@
     D.style.injectPage(document);
     st.panel = D.panel.mount(actions);
     D.rows.mountTools(onRowAction);
-    D.client.read().then((db) => { st.db = db; recompute(); }).catch(() => {});
-    D.client.onChange((db) => { st.db = db; recompute(); });
+    const seq = dbSeq;
+    D.client.read().then((db) => { if (seq === dbSeq) setDb(db); recompute(); }).catch(() => {});
+    D.client.onChange((db) => { setDb(db); recompute(); });
     new MutationObserver((records) => {
       if (records.every((r) => isOurs(r.target))) return;
       schedule();

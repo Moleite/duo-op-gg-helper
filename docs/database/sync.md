@@ -11,7 +11,9 @@ The service worker is the only context that writes `chrome.storage.local`. The p
 
 The accepted messages and operations are generated: [`../generated/operations.md`](../generated/operations.md).
 
-The panel also applies the operation locally, with the same pure function (`model.applyOp`). The display follows the click without waiting for the service worker. `src: extension/src/app.js#st.db = D.model.applyOp(st.db, o, Date.now())`
+The panel also applies the operation locally, with the same pure function (`model.applyOp`). The display follows the click without waiting for the service worker. `src: extension/src/app.js#setDb(D.model.applyOp(st.db, o, Date.now()))`
+
+A response of the service worker can arrive after a later operation: the `page.open` response of the page load, for example, after a filter change. Such a response is stale, and the panel keeps its state. `chrome.storage.onChanged` brings the saved state. `src: extension/src/app.js#if (seq === dbSeq) setDb(r.db)`
 
 ## Rows to push
 

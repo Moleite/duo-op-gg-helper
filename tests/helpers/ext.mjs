@@ -1,5 +1,5 @@
 // ext.mjs - Loads the modules of the extension in Node, like Chrome
-// Exposes: load(files), CONTENT, WORKER, ROOT, capture(name)
+// Exposes: load(files), CONTENT, WORKER, ROOT, capture(name), until(cond)
 //
 // Chrome loads the files of extension/src as classic scripts, in the order of
 // the manifest. vm.runInThisContext does the same: a module missing from the
@@ -34,4 +34,12 @@ export function load(files) {
 
 export function capture(name) {
   return fs.readFileSync(path.join(ROOT, 'DOM', name), 'utf8');
+}
+
+// Waits until cond() is true, 2 s at most, then lets the assertions speak.
+// A fixed delay passes on a fast machine and fails on the CI runner: a
+// message to the worker goes through IndexedDB and chrome.storage.
+export async function until(cond, ms = 2000) {
+  const end = Date.now() + ms;
+  while (!cond() && Date.now() < end) await new Promise((r) => setTimeout(r, 10));
 }
