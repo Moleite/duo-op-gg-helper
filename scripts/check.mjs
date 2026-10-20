@@ -159,6 +159,14 @@ for (const f of JS.concat(TOOLS)) {
 const manifest = JSON.parse(read('extension/manifest.json'));
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) err('extension/manifest.json', `version ${manifest.version}: x.y.z expected`);
 manifest.content_scripts.forEach((cs) => cs.js.forEach((j) => { if (!exists('extension/' + j)) err('extension/manifest.json', `missing file ${j}`); }));
+// The connection string lives in the IndexedDB of the origin of the extension.
+// A content script runs in the origin of the site: there, the same code would
+// write it into the IndexedDB of the site (extension/src/store/secrets.js).
+manifest.content_scripts.forEach((cs) => cs.js.forEach((j) => {
+  if (exists('extension/' + j) && /indexedDB|D\.secrets\b/.test(read('extension/' + j))) {
+    err('extension/manifest.json', `content script ${j} reaches the secrets: load it from background.js only`);
+  }
+}));
 // Every importScripts path, not only src/: a missing file is listed in the
 // errors of the extension, even inside a try.
 const bg = (read('extension/background.js').match(/importScripts\([^)]*\)/g) || []).join(' ');

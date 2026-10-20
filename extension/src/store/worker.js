@@ -5,9 +5,10 @@
 // messages (store/client.js): two contexts that rewrite the same key would
 // overwrite each other, chrome.storage has no transaction.
 //
-// Only context that reads the connection string. A message from a tab can
-// neither read nor change it: the DOM of the site is shared with its scripts
-// and its trackers (docs/database/neon.md).
+// Only context that reads the connection string, kept by store/secrets.js
+// outside chrome.storage. A message from a tab can neither read nor change
+// it: the DOM of the site is shared with its scripts and its trackers
+// (docs/database/neon.md).
 //
 // Sync: one round trip pushes the changed rows, then reads everything back
 // (docs/database/sync.md).
@@ -37,9 +38,7 @@
   function writeDb(db) { return env.storage.set({ db: db }); }
 
   async function connection() {
-    const r = await env.storage.get(['secrets']);
-    const url = (r.secrets && r.secrets.neonUrl) || '';
-    return D.neon.parse(url);
+    return D.neon.parse(await D.secrets.get(env.storage));
   }
 
   async function publicState(db) {
@@ -112,7 +111,7 @@
         if (fromTab(sender)) throw new Error('Secret refused from a tab.');
         const url = String(msg.neonUrl || '').trim();
         if (url && !D.neon.parse(url)) throw new Error('Unreadable connection string: postgresql://role:password@host/database expected.');
-        await env.storage.set({ secrets: { neonUrl: url } });
+        await D.secrets.set(url, env.storage);
         return publicState(await readDb());
       }
       default:

@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
+import { IDBFactory } from 'fake-indexeddb';
 import { load, WORKER, ROOT } from './helpers/ext.mjs';
 import { storage, neonOnPglite } from './helpers/fake-chrome.mjs';
 
@@ -26,14 +27,19 @@ async function database() {
   return pg;
 }
 
-// One browser = one storage. The worker is a singleton: its env changes.
+// One browser = one storage and one IndexedDB of the extension. The worker
+// is a singleton: its env changes.
 function browser(pg) {
   const store = storage();
-  return async (msg, sender) => {
+  const idb = new IDBFactory();
+  const call = async (msg, sender) => {
     W.env.storage = store;
     W.env.fetch = neonOnPglite(pg);
+    D.secrets.env.indexedDB = () => idb;
     return W.handle(msg, sender || POPUP);
   };
+  call.store = store;
+  return call;
 }
 
 test('the secret is refused from a tab and never leaves the worker', async () => {
@@ -45,6 +51,22 @@ test('the secret is refused from a tab and never leaves the worker', async () =>
   assert.equal(st.neon.configured, true);
   assert.equal(st.neon.user, 'duogg_alice');
   assert.ok(!JSON.stringify(st).includes('x@ep-test'), 'the response does not contain the connection string');
+  assert.ok(!JSON.stringify(b.store.data).includes('x@ep-test'), 'chrome.storage.local, readable by a tab, holds no secret');
+  assert.equal((await b({ type: 'secret.set', neonUrl: '' })).neon.configured, false, 'an empty string clears it');
+});
+
+test('a string saved by 2.0.2 in chrome.storage.local moves to IndexedDB', async () => {
+  const b = browser(await database());
+  await b.store.set({ secrets: { neonUrl: URL_ALICE } });
+  const st = await b({ type: 'state' }, TAB);
+  assert.equal(st.neon.user, 'duogg_alice');
+  assert.equal('secrets' in b.store.data, false, 'removed from chrome.storage.local');
+  assert.equal((await b({ type: 'state' })).neon.user, 'duogg_alice', 'read back from IndexedDB');
+
+  // A string already in IndexedDB wins over a stale copy.
+  await b.store.set({ secrets: { neonUrl: URL_BOB } });
+  assert.equal((await b({ type: 'state' })).neon.user, 'duogg_alice');
+  assert.equal('secrets' in b.store.data, false);
 });
 
 test('sync: two browsers of Alice share, Bob sees nothing', async () => {

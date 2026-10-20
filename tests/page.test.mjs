@@ -7,11 +7,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseHTML } from 'linkedom';
-import { load, WORKER, CONTENT, capture } from './helpers/ext.mjs';
+import { load, WORKER, CONTENT, capture, until } from './helpers/ext.mjs';
+import { IDBFactory } from 'fake-indexeddb';
 import { storage, chromeFor } from './helpers/fake-chrome.mjs';
 
 const { window, document } = parseHTML(capture('1.0_FIND-DUO.html'));
 const store = storage();
+const idb = new IDBFactory();
 window.innerWidth = 1600;
 window.innerHeight = 900;
 Object.assign(globalThis, {
@@ -39,13 +41,14 @@ globalThis.fetch = async (url, init) => {
 
 const D = load(WORKER.concat(CONTENT));
 D.worker.env.storage = store;
+D.secrets.env.indexedDB = () => idb;
 D.worker.env.pushDelayMs = 0;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms || 30));
 const rows = () => D.extract.rows(document);
 const state = (st) => rows().filter((li) => li.getAttribute('data-duogg') === st).length;
 
 test('on load: panel mounted, duplicates hidden, no row removed', async () => {
-  await wait();
+  await until(() => document.getElementById('duogg-root') && state('hidden') > 0);
   assert.ok(document.getElementById('duogg-root'), 'panel');
   assert.ok(document.getElementById('duogg-style'), 'style sheet');
   assert.equal(rows().length, 50);

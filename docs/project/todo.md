@@ -21,6 +21,7 @@ These readings decide between two paths, to choose with them:
 
 ## Open checks
 
+- Move of a 2.0.2 connection string, on a real Chrome profile: after the reload, the Neon tab of the popup shows the role without a new paste. In the DevTools of the service worker, Application tab, the IndexedDB `duogg-secrets` holds `neonUrl`, and `await chrome.storage.local.get()` has no `secrets` key.
 - Rank table: compare it with the game client, Master and above first ([`../filters/ranks.md`](../filters/ranks.md#reliability)).
 - Verified only filter: its state is not read, so Show more does not send `isAuth`. It needs a capture with the filter on (`DOM/raw-1.1_FIND-DUO-VERIFIED.html`).
 - Maximum length of a note: unknown. The panel warns above `config.announce.warnLength` (200).

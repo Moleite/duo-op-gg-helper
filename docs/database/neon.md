@@ -38,9 +38,14 @@ The message `Connected as duogg_<player> on neondb` proves the role. It comes fr
 
 | Location | Reader |
 | -------- | ------ |
-| `chrome.storage.local`, key `secrets`, typed in the popup | service worker only |
+| IndexedDB `duogg-secrets` of the origin of the extension, typed in the popup | service worker only |
 
-A content script never reads it, and the service worker refuses a `secret.set` message from a tab. The `state` response does not contain it. `src: extension/src/store/worker.js#function fromTab(sender)`
+- A content script runs in the origin of the site. The IndexedDB API opens the database of the site there, never the one of the extension. `src: extension/src/store/secrets.js#const DB = 'duogg-secrets'`
+- `chrome.storage.local` holds no secret: a content script can read it, and its change events carry each new value into the process of the site.
+- The service worker refuses a `secret.set` message from a tab. The `state` response does not contain the string. `src: extension/src/store/worker.js#function fromTab(sender)`
+- `npm run check` refuses a content script that names `indexedDB` or `DuoGG.secrets`.
+
+Up to 2.0.2 the string lived in `chrome.storage.local`, key `secrets`. The first read of the service worker moves it to IndexedDB, then removes the key ([`../journal/2026-10-20-secret-out-of-storage.md`](../journal/2026-10-20-secret-out-of-storage.md)).
 
 Anyone with access to the Windows session can read the storage of the Chrome profile. The restricted role and RLS limit the damage: a stolen string gives the data of one player, without any possible delete.
 

@@ -1,8 +1,8 @@
 // fake-chrome.mjs - Fake chrome.storage and fake Neon for the tests
 // Exposes: storage(), chromeFor(getWorker, store, sender), neonOnPglite(pg)
 //
-// storage() mimics chrome.storage.local: get, set, and onChanged after each
-// set. neonOnPglite() answers like the HTTP API of Neon, by running the batch
+// storage() mimics chrome.storage.local: get, set, remove, and onChanged
+// after each write. neonOnPglite() answers like the HTTP API of Neon, by running the batch
 // in PGlite under the role named by the connection string.
 
 export function storage() {
@@ -24,6 +24,14 @@ export function storage() {
         data[k] = clone(obj[k]);
       });
       listeners.forEach((l) => l(changes, 'local'));
+    },
+    async remove(keys) {
+      const changes = {};
+      (Array.isArray(keys) ? keys : [keys]).filter((k) => k in data).forEach((k) => {
+        changes[k] = { oldValue: clone(data[k]) };
+        delete data[k];
+      });
+      if (Object.keys(changes).length) listeners.forEach((l) => l(changes, 'local'));
     }
   };
 }

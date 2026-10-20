@@ -26,7 +26,7 @@ Configuration, Neon and troubleshooting: [`docs/run/getting-started.md`](docs/ru
 ## Developing
 
 ```bash
-npm run setup     # .env from .env.example (local secrets), then npm ci (linkedom, PGlite)
+npm run setup     # .env from .env.example (local secrets), then npm ci (linkedom, PGlite, fake-indexeddb)
 npm test          # rules, extraction replayed on the captures, SQL and RLS, page, popup
 npm run check     # documentation, style, generated files, code, captures
 ```
