@@ -73,4 +73,6 @@ A warning is a paragraph that starts with `⚠️`. It states the risk, then the
 
 ## What `npm run check` reports
 
-In the prose of the documentation: em dash, double dash between two words, a word of `FILLERS`, a capitalized word missing from `ACRONYMS`, a sentence longer than 40 words. Both lists are in `scripts/style.mjs`. In every file: an accented letter. This page is not style-checked: it quotes the patterns on purpose.
+In the prose of the documentation and of the code comments (JS, SQL, HTML): em dash, double dash between two words, a word of `FILLERS`, a capitalized word missing from `ACRONYMS`, a sentence longer than 40 words. Both lists are in `scripts/style.mjs`. In every file: an accented letter. This page is not style-checked: it quotes the patterns on purpose.
+
+A comment line is not prose when it is decorative, indented by two spaces or more after the marker (code example, table), the `Exposes:` line or a tool directive (`eslint-disable`). An identifier in capitals goes in inline code: `SUPPORT`. `src: scripts/style.mjs#export function commentsOf(src, lang)`

@@ -4,16 +4,19 @@
 // Documentation (docs/CONVENTIONS.md): budgets, routing header, links and
 //   anchors, cited paths, `src:` pointers, style (scripts/style.mjs),
 //   generated files up to date.
-// Code: syntax, 400 lines per file, no innerHTML in extension/, files of the
-//   manifest and of popup.html present, docs/ paths cited in the code present,
-//   clean DOM captures.
+// Code: syntax, 400 lines per file, no HTML parsing in extension/, files of
+//   the manifest and of popup.html present, docs/ paths and anchors cited in
+//   the code present, style of the comments, clean DOM captures.
+// Files: those of the repository only (tracked, or new and not ignored). A
+//   git-ignored file present on this machine is missing in CI.
 // Language: the repository is written in English. An accented letter in the
 //   documentation, the code, the SQL or the tests is an error.
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
-import { proseOf, styleProblems } from './style.mjs';
+import { proseOf, commentsOf, styleProblems } from './style.mjs';
 import { build } from './generate.mjs';
 import { problems as domProblems } from './clean-dom.mjs';
 import { keysOf } from './env.mjs';
@@ -21,7 +24,25 @@ import { keysOf } from './env.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/');
 const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8').replace(/\r\n/g, '\n');
-const exists = (p) => fs.existsSync(path.join(ROOT, p));
+// Files that `git add -A` would commit, and their folders. Outside a git
+// clone (archive), every file on disk counts.
+const FILES = (() => {
+  let list;
+  try {
+    list = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: ROOT, encoding: 'utf8' });
+  } catch {
+    return null;
+  }
+  const out = new Set();
+  list.split('\0').filter((f) => f && fs.existsSync(path.join(ROOT, f))).forEach((f) => {
+    for (let p = f; p && p !== '.'; p = path.posix.dirname(p)) out.add(p);
+  });
+  return out;
+})();
+const exists = (p) => {
+  const q = path.posix.normalize(p).replace(/\/$/, '');
+  return FILES ? FILES.has(q) : fs.existsSync(path.join(ROOT, q));
+};
 const errors = [];
 const warnings = [];
 const err = (f, m) => errors.push(`${f}: ${m}`);
@@ -35,7 +56,7 @@ function walk(dir, filter) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) out.push(...walk(p, filter)); else if (filter(p)) out.push(rel(p));
+    if (e.isDirectory()) out.push(...walk(p, filter)); else if (filter(p) && exists(rel(p))) out.push(rel(p));
   }
   return out;
 }
@@ -142,18 +163,28 @@ const TOOLS = walk(path.join(ROOT, 'scripts'), (p) => /\.m?js$/.test(p))
   .concat(walk(path.join(ROOT, 'tests'), (p) => /\.m?js$/.test(p)))
   .concat(walk(path.join(ROOT, 'db'), (p) => /\.(sql|md)$/.test(p)));
 
+// Every API that turns a string into nodes. A note or a name of another
+// player would become markup there (AGENTS.md rule 4). The pattern needs the
+// assignment, the call or `new`: a comment can name these APIs.
+const HTML_SINK = /\.(innerHTML|outerHTML|srcdoc)\s*=[^=]|\b(insertAdjacentHTML|createContextualFragment|setHTMLUnsafe|parseHTMLUnsafe|parseFromString|document\.write(ln)?)\s*\(|new\s+DOMParser\b/;
+
 for (const f of JS.concat(TOOLS)) {
   const code = read(f);
   accents(f, code);
-  if (!/\.m?js$/.test(f)) continue;
+  const lang = /\.m?js$/.test(f) ? 'js' : /\.sql$/.test(f) ? 'sql' : /\.html$/.test(f) ? 'html' : null;
+  if (lang) commentsOf(code, lang).forEach((c) => styleProblems(c.text).forEach((p) => err(`${f}:${c.line}`, 'style, ' + p)));
+  if (lang !== 'js') continue;
   if (f.startsWith('extension/')) {
     try { new vm.Script(code, { filename: f }); } catch (e) { err(f, 'syntax: ' + e.message); }
-    if (/\.(innerHTML|outerHTML)\s*=|insertAdjacentHTML/.test(code)) err(f, 'innerHTML forbidden (src/ui/dom.js)');
+    const sink = code.match(HTML_SINK);
+    if (sink) err(f, `${sink[0]}: HTML parsing forbidden, build with src/ui/dom.js`);
   }
   const lines = code.split('\n').length;
   if (lines > 400) err(f, `${lines} lines, budget 400`);
-  code.split('\n').forEach((l, i) => { if (/^\s*\/\/.*—/.test(l)) err(`${f}:${i + 1}`, 'em dash in a comment'); });
-  for (const m of code.matchAll(/(docs\/[\w./-]+\.md)/g)) if (!exists(m[1])) err(f, `cited doc missing ${m[1]}`);
+  for (const m of code.matchAll(/(docs\/[\w./-]+\.md)(?:#([\w-]+))?/g)) {
+    if (!exists(m[1])) err(f, `cited doc missing ${m[1]}`);
+    else if (m[2] && !anchors(m[1]).has(m[2])) err(f, `cited anchor missing ${m[1]}#${m[2]}`);
+  }
 }
 
 const manifest = JSON.parse(read('extension/manifest.json'));

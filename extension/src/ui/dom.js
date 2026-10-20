@@ -2,8 +2,8 @@
 // Exposes: DuoGG.h(tag, attrs, ...children), DuoGG.clear(el)
 //
 // Notes and names of other players are untrusted data: a text always goes
-// through textContent. No module of ui/ uses innerHTML (scripts/check.mjs
-// checks it).
+// through textContent. No module of extension/ parses HTML: innerHTML,
+// DOMParser and their twins are refused by scripts/check.mjs.
 (function (D) {
   function h(tag, attrs) {
     const el = document.createElement(tag);

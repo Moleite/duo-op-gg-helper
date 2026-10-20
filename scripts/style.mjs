@@ -1,8 +1,8 @@
 // style.mjs - Writing rules that a script can check (docs/STYLE.md)
-// Exposes: ACRONYMS, FILLERS, proseOf(markdown), styleProblems(text)
+// Exposes: ACRONYMS, FILLERS, proseOf(markdown), commentsOf(code, lang), styleProblems(text)
 //
 // check.mjs applies these rules to the documentation and to code comments.
-// A word in capitals that is not in ACRONYMS is emphasis, except in inline
+// A word in capitals that is not in `ACRONYMS` is emphasis, except in inline
 // code.
 
 export const ACRONYMS = new Set([
@@ -50,4 +50,120 @@ export function styleProblems(text) {
     if (n > MAX_WORDS) out.push(`sentence of ${n} words: "${s.trim().slice(0, 60)}..."`);
   });
   return [...new Set(out)];
+}
+
+// ---- Code comments ---------------------------------------------------------
+
+// Comments of a JS file: [{ line, own, text }]. own: the comment starts its
+// line. Strings, templates and regular expressions are skipped: a `//` or a
+// quote inside them opens no comment.
+function jsComments(src) {
+  const out = [];
+  let block = false;
+  let tpl = false;
+  src.split('\n').forEach((l, i) => {
+    let j = 0;
+    if (block) {
+      const end = l.indexOf('*/');
+      out.push({ line: i + 1, own: true, text: (end === -1 ? l : l.slice(0, end)).replace(/^\s*\*?/, '') });
+      if (end === -1) return;
+      block = false;
+      j = end + 2;
+    }
+    let q = tpl ? '`' : null;
+    let prev = '';
+    let word = '';
+    for (; j < l.length; j++) {
+      const c = l[j];
+      if (q) {
+        if (c === '\\') { j++; continue; }
+        if (c === q) { q = null; if (c === '`') tpl = false; }
+        continue;
+      }
+      if (c === "'" || c === '"') { q = c; continue; }
+      if (c === '`') { q = c; tpl = true; continue; }
+      if (c === '/' && l[j + 1] === '/') {
+        out.push({ line: i + 1, own: !l.slice(0, j).trim(), text: l.slice(j + 2) });
+        return;
+      }
+      if (c === '/' && l[j + 1] === '*') {
+        const end = l.indexOf('*/', j + 2);
+        out.push({ line: i + 1, own: !l.slice(0, j).trim(), text: l.slice(j + 2, end === -1 ? l.length : end) });
+        if (end === -1) { block = true; return; }
+        j = end + 1;
+        continue;
+      }
+      // A regular expression literal can hold quotes and slashes.
+      if (c === '/' && (!prev || '(,=:[!&|?{};'.includes(prev) || word === 'return')) {
+        let k = j + 1;
+        let cls = false;
+        for (; k < l.length; k++) {
+          if (l[k] === '\\') { k++; continue; }
+          if (l[k] === '[') cls = true;
+          else if (l[k] === ']') cls = false;
+          else if (l[k] === '/' && !cls) break;
+        }
+        j = k;
+        continue;
+      }
+      if (/[\w$]/.test(c)) word = (/[\w$]/.test(l[j - 1] || '') ? word : '') + c;
+      else if (c !== ' ' && c !== '\t') word = '';
+      if (c !== ' ' && c !== '\t') prev = c;
+    }
+  });
+  return out;
+}
+
+// Comments of a SQL file: `--` outside a string.
+function sqlComments(src) {
+  const out = [];
+  src.split('\n').forEach((l, i) => {
+    let q = false;
+    for (let j = 0; j < l.length; j++) {
+      if (l[j] === "'") q = !q;
+      else if (!q && l.startsWith('--', j)) {
+        out.push({ line: i + 1, own: !l.slice(0, j).trim(), text: l.slice(j + 2) });
+        return;
+      }
+    }
+  });
+  return out;
+}
+
+function htmlComments(src) {
+  const out = [];
+  for (const m of src.matchAll(/<!--([\s\S]*?)-->/g)) {
+    const first = src.slice(0, m.index).split('\n').length;
+    m[1].split('\n').forEach((t, k) => out.push({ line: first + k, own: true, text: t }));
+  }
+  return out;
+}
+
+const EXTRACT = { js: jsComments, sql: sqlComments, html: htmlComments };
+
+// Prose of the comments of a file: [{ line, text }], one item per paragraph.
+// A paragraph is a run of comments that each start their line. Skipped: a
+// decorative line, a line indented by two spaces or more after the marker
+// (code example, table), the `Exposes:` line (identifiers), a tool
+// directive (`eslint-disable`, `@ts-`), whose syntax is not prose.
+export function commentsOf(src, lang) {
+  const out = [];
+  let para = null;
+  let last = -1;
+  const flush = () => {
+    if (para) out.push({ line: para.line, text: para.parts.join('\n') });
+    para = null;
+  };
+  EXTRACT[lang](src.replace(/\r\n/g, '\n')).forEach((c) => {
+    const t = c.text.replace(/\s+$/, '');
+    if (c.line !== last + 1 || !c.own) flush();
+    last = c.line;
+    if (/^[\s=~#*-]*$/.test(t) || /^\s{2,}\S/.test(t) || /^\s*Exposes:/.test(t) || /^\s*\|/.test(t) ||
+        /^\s*(eslint-|@ts-|prettier-ignore)/.test(t)) { flush(); return; }
+    if (!para) para = { line: c.line, parts: [] };
+    para.parts.push(t.replace(/`[^`\n]*`/g, ' X ').replace(/https?:\/\/\S+/g, ' '));
+    if (!c.own) flush();
+  });
+  flush();
+  return out;
 }

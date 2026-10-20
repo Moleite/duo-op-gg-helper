@@ -59,7 +59,7 @@ test('fetchPage sends the partners query with the variables of the site', async 
   assert.equal(list[0].id, '10876326');
 });
 
-// Read on 2026-10-17: `from: 0` with position SUPPORT returns 0 posts, the
+// Read on 2026-10-17: `from: 0` with position `SUPPORT` returns 0 posts, the
 // same query without `from` returns 50.
 test('first page: no from variable', () => {
   const v = D.api.variables({ region: 'euw', position: 'SUPPORT' }, null);
