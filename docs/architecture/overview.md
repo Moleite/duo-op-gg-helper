@@ -11,7 +11,7 @@ DuoGG helper is a Chrome MV3 extension in plain JS, without a build and without 
 | ------ | ------ |
 | plain JS, IIFE modules attached to `globalThis.DuoGG` | MV3 refuses `import` in a content script. Without a build, Chrome runs the working folder as it is. |
 | `extension/` folder loaded by Chrome, tooling at the root | Chrome loads neither `node_modules/`, nor `docs/`, nor the captures. |
-| no runtime dependency, two test dependencies | linkedom replays the captures of the site. PGlite runs the real SQL and the real RLS. |
+| no runtime dependency, three test dependencies | linkedom replays the captures of the site. PGlite runs the real SQL and the real RLS. fake-indexeddb runs the real code of the secret. |
 | one writer of the storage: the service worker | `chrome.storage` has no transaction. |
 | hiding by attributes, sorting by CSS `order` | React manages the rows of the table. Removing or moving one of its nodes breaks its next render. |
 
@@ -34,7 +34,7 @@ Each layer depends only on the layers above it in this table.
 | `extension/src/core/` | `config`, `lol`, `announce` | constants, positions and ranks, post note |
 | `extension/src/data/` | `selectors`, `extract`, `api` | a post from the DOM or from the API |
 | `extension/src/filters/` | `rules`, `engine` | rule registry, evaluation and sorting, without DOM |
-| `extension/src/store/` | `model`, `sql`, `neon`, `worker`, `client` | local database, SQL, HTTP client, service worker |
+| `extension/src/store/` | `model`, `sql`, `neon`, `secrets`, `worker`, `client` | local database, SQL, HTTP client, connection string, service worker |
 | `extension/src/ui/` | `style`, `dom`, `rows`, `more`, `panel*`, `popup*` | rendering |
 | `extension/src/app.js` | | orchestrator of the content script |
 

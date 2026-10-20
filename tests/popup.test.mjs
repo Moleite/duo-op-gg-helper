@@ -8,16 +8,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseHTML } from 'linkedom';
 import { load, WORKER, ROOT } from './helpers/ext.mjs';
+import { IDBFactory } from 'fake-indexeddb';
 import { storage, chromeFor } from './helpers/fake-chrome.mjs';
 
 const html = fs.readFileSync(path.join(ROOT, 'extension', 'popup.html'), 'utf8');
 const { window, document } = parseHTML(html);
 const store = storage();
+const idb = new IDBFactory();
 Object.assign(globalThis, { window: window, document: document, localStorage: undefined,
   chrome: chromeFor(() => globalThis.DuoGG.worker, store, {}) });
 const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]);
 const D = load(WORKER.concat(scripts.filter((s) => s !== 'popup.js')));
 D.worker.env.storage = store;
+D.secrets.env.indexedDB = () => idb;
 D.worker.env.pushDelayMs = 0;
 load(['popup.js']);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms || 30));

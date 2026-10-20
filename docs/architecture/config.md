@@ -10,13 +10,13 @@ A setting lives at one of four levels. The level depends on who changes the valu
 | code constant | algorithm thresholds, delays, page sizes | `DuoGG.config` (`extension/src/core/config.js`) | with the code, tested |
 | registry | filter rules, sorts, DOM selectors | `extension/src/filters/rules.js`, `extension/src/data/selectors.js` | with the code, generated documentation |
 | local database | filters, profiles, blacklist, panel position | `chrome.storage.local`, key `db` | at runtime, through the panel or the popup |
-| secret | Neon connection string | `chrome.storage.local`, key `secrets`, typed in the popup | at installation |
+| secret | Neon connection string | IndexedDB of the extension (`extension/src/store/secrets.js`), typed in the popup | at installation |
 
 ## Choosing the level
 
 - A threshold that the player tunes while playing becomes a rule parameter (`param` in `DuoGG.RULES`). The panel shows its field without other code.
 - A logic threshold that changes only with the algorithm becomes a constant of `DuoGG.config`. A field in the panel would cost a validation, and a bad value would break the behavior without a signal.
-- A secret never goes through a content script. Only the service worker and the popup read it.
+- A secret never goes through a content script, nor through `chrome.storage.local`, which a content script can read. Only the service worker reads it. The popup only types it.
 
 ## Constants of `DuoGG.config`
 
@@ -34,7 +34,7 @@ A setting lives at one of four levels. The level depends on who changes the valu
 
 ## No local configuration file
 
-The extension reads no git-ignored file. The connection string is typed once per Chrome profile, in the popup. `src: extension/src/store/worker.js#(r.secrets && r.secrets.neonUrl)`
+The extension reads no git-ignored file. The connection string is typed once per Chrome profile, in the popup. `src: extension/src/store/worker.js#D.secrets.get(env.storage)`
 
 ⚠️ The service worker loads only versioned files. `importScripts` on a missing file fails at registration, and Chrome lists the failure in the errors of the extension, even inside a `try`. `npm run check` refuses such a path ([`../journal/2026-10-17-missing-config-file.md`](../journal/2026-10-17-missing-config-file.md)).
 

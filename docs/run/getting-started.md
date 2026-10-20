@@ -49,12 +49,12 @@ All local secrets live in one file, `.env` at the root of the repository. `npm r
 | `DUOGG_NEON_URL` | connection string of your player role (group `duogg-user`) | nobody: paste it in the popup, Neon tab, in each browser |
 | `DUOGG_NEON_URL_READ` | read-only connection string (role `duogg_agent`, group `duogg-read`) | `scripts/sql.mjs` ([`../database/sql-cli.md`](../database/sql-cli.md)) |
 
-The extension reads no file outside `extension/`, and no git-ignored file: the service worker keeps the player string in `chrome.storage.local` (key `secrets`). `npm run check` verifies that this table lists the keys of `.env.example`.
+The extension reads no file outside `extension/`, and no git-ignored file: the service worker keeps the player string in the IndexedDB of the extension ([`../database/neon.md`](../database/neon.md#where-the-connection-string-lives)). `npm run check` verifies that this table lists the keys of `.env.example`.
 
 ## Development machine
 
 ```bash
-npm run setup     # .env from .env.example, then npm ci (linkedom and PGlite, for the tests only)
+npm run setup     # .env from .env.example, then npm ci (linkedom, PGlite and fake-indexeddb, for the tests only)
 npm test
 npm run check
 gh auth login     # Git and gh use the credential manager of the system

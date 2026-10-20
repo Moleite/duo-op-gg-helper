@@ -66,21 +66,21 @@ extension/               folder loaded by Chrome (chrome://extensions)
   src/core/              config, lol (positions, ranks), announce
   src/data/              selectors, extract (DOM), api (GraphQL of the site)
   src/filters/           rules (registry), engine (evaluation, sorting)
-  src/store/             model (pure), sql, neon, worker, client
+  src/store/             model (pure), sql, neon, secrets, worker, client
   src/ui/                style, dom, rows, more, panel*, popup*
   src/app.js             orchestrator of the content script
 db/                      schema.sql, grants.sql (RLS), create-role.sql, migrations/
 DOM/                     pseudonymized captures of the site: only reference for the selectors
 docs/                    documentation per task; docs/generated/ is generated
 scripts/                 check, generate, clean-dom, style, sql, make-icons
-tests/                   node:test, linkedom, PGlite
+tests/                   node:test, linkedom, PGlite, fake-indexeddb
 ```
 
 ## Rules
 
 1. **No runtime dependency, no build.** Each module is an IIFE attached to `globalThis.DuoGG`. The dependencies of `package.json` serve the tests only.
 2. **Hide, never delete.** The extension removes, moves and creates no node that React manages. It sets attributes and the `order` property. An identical write is not repeated: it would restart the observer ([`docs/architecture/overview.md`](docs/architecture/overview.md#recompute-cycle)).
-3. **The connection string never touches the page.** Only the service worker and the popup read it. Nothing secret in a content script, the panel or the console of the page.
+3. **The connection string never touches the page.** It lives in the IndexedDB of the extension, never in `chrome.storage`. Only the service worker reads it, the popup only types it. Nothing secret in a content script, the panel or the console of the page.
 4. **No `innerHTML` in `extension/`.** The notes and names of other players are untrusted data: `extension/src/ui/dom.js` goes through `textContent`.
 5. **One writer of the storage: the service worker.** The other contexts send idempotent operations ([`docs/database/sync.md`](docs/database/sync.md)).
 6. **Frugality.** Neon wakes up only on an action of the player or a cache older than 6 h. The API of the site is called only on a click on Show more. No call in a loop.

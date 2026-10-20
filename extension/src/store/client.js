@@ -2,8 +2,8 @@
 // Exposes: DuoGG.client.{ send, op, read, onChange }
 //
 // Reads chrome.storage.local directly, writes by message to the service
-// worker (store/worker.js), the only writer. A content script never reads
-// the `secrets` key.
+// worker (store/worker.js), the only writer. chrome.storage.local holds no
+// secret: the connection string lives in store/secrets.js.
 (function (D) {
   function explain(e) {
     const m = String((e && e.message) || e);

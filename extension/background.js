@@ -12,5 +12,6 @@ importScripts(
   'src/store/model.js',
   'src/store/sql.js',
   'src/store/neon.js',
+  'src/store/secrets.js',
   'src/store/worker.js'
 );

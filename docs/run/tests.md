@@ -3,7 +3,7 @@
 > **Answers**: which tests exist · what each one proves · how a test loads the extension · what `npm run check` verifies.
 > **Does not answer**: what to run before a commit → [`../git/workflow.md`](../git/workflow.md#steps)
 
-The tests run with `node:test`, without a browser. Two development dependencies serve them: linkedom (a DOM in Node) and PGlite (Postgres in WASM). The extension loads neither.
+The tests run with `node:test`, without a browser. Three development dependencies serve them: linkedom (a DOM in Node), PGlite (Postgres in WASM) and fake-indexeddb (IndexedDB in Node). The extension loads none of them.
 
 ## Commands
 
@@ -23,7 +23,7 @@ node --test tests/rules.test.mjs   # one file
 | `tests/api.test.mjs` | conversion of an API post, cursor, GraphQL call |
 | `tests/model.test.mjs` | idempotent operations, v1 blacklist import, post note |
 | `tests/db.test.mjs` | `db/schema.sql`, `db/grants.sql` and the queries of the extension in Postgres, RLS included |
-| `tests/worker.test.mjs` | service worker: secret, sync between two browsers, Neon error |
+| `tests/worker.test.mjs` | service worker: secret out of `chrome.storage.local`, move of a 2.0.2 string, sync between two browsers, Neon error |
 | `tests/page.test.mjs` | full content script on a capture: hiding, dimming, sorting, blacklist, Show more, no loop |
 | `tests/popup.test.mjs` | popup loaded from `popup.html`: import, profile |
 
@@ -48,7 +48,7 @@ node --test tests/rules.test.mjs   # one file
 | generation | `docs/generated/` equal to the output of `npm run gen` |
 | code | syntax, 400 lines per file, `innerHTML` forbidden in `extension/`, cited `docs/` paths |
 | extension | files of the manifest, of `background.js` and of `popup.html` present, version in the `x.y.z` format |
-| secrets | `.env` git-ignored, Variables table of `getting-started.md` equal to the keys of `.env.example` |
+| secrets | `.env` git-ignored, Variables table of `getting-started.md` equal to the keys of `.env.example`, no content script that reaches `indexedDB` or `DuoGG.secrets` |
 | captures | no script and no real name in `DOM/` |
 
 CI (`.github/workflows/ci.yml`) runs `npm ci`, `npm run check` and `npm test` on each PR.
