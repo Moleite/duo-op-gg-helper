@@ -26,6 +26,7 @@ node --test tests/rules.test.mjs   # one file
 | `tests/worker.test.mjs` | service worker: secret out of `chrome.storage.local`, move of a 2.0.2 string, sync between two browsers, Neon error |
 | `tests/page.test.mjs` | full content script on a capture: hiding, dimming, sorting, blacklist, Show more, no loop |
 | `tests/popup.test.mjs` | popup loaded from `popup.html`: import, profile |
+| `tests/style.test.mjs` | extraction of the code comments that `npm run check` style-checks, forbidden patterns |
 
 ## Loading the extension in a test
 
@@ -48,7 +49,9 @@ A test that waits for the worker uses `until(cond)`, never a fixed delay. A mess
 | documentation | budgets, routing header, links and anchors, cited paths, `src:` pointers, style, page missing from the index (warning) |
 | language | no accented letter in the documentation, the code, the SQL or the tests |
 | generation | `docs/generated/` equal to the output of `npm run gen` |
-| code | syntax, 400 lines per file, `innerHTML` forbidden in `extension/`, cited `docs/` paths |
+| code | syntax, 400 lines per file, cited `docs/` paths and anchors, style of the comments (JS, SQL, HTML) |
+| HTML parsing | forbidden in `extension/`: `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `DOMParser`, `createContextualFragment`, `setHTMLUnsafe`, `document.write`, `srcdoc` |
+| files | only the files of the repository: tracked, or new and not git-ignored. A git-ignored file present on the machine counts as missing, like in CI |
 | extension | files of the manifest, of `background.js` and of `popup.html` present, version in the `x.y.z` format |
 | secrets | `.env` git-ignored, Variables table of `getting-started.md` equal to the keys of `.env.example`, no content script that reaches `indexedDB` or `DuoGG.secrets` |
 | captures | no script and no real name in `DOM/` |

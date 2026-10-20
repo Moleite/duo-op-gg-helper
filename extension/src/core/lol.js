@@ -2,10 +2,10 @@
 // Exposes: DuoGG.lol.{ POSITIONS, POSITION_LABELS, TIERS, parsePosition,
 //          parseRank, rankLabel, rankIndex, duoCompatible, riotKey }
 //
-// Canonical values are the values of the site API: TOP, JUNGLE, MID,
-// BOTTOM, SUPPORT, ALL for a position; IRON..CHALLENGER for a tier. The DOM
-// shows other labels (ADC, Support, E2): parsePosition and parseRank map
-// them to the canonical values.
+// Canonical values are the values of the site API: `TOP`, `JUNGLE`,
+// `MID`, `BOTTOM`, `SUPPORT`, `ALL` for a position, `IRON` to `CHALLENGER`
+// for a tier. The DOM shows other labels (ADC, Support, E2): parsePosition
+// and parseRank map them to the canonical values.
 //
 // The compatibility table comes from the v1 (tag v1.0). Riot changed the
 // rules at the top of the ladder in 2026: docs/filters/ranks.md.

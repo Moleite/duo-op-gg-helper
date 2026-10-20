@@ -1,7 +1,7 @@
 // env.mjs - Reads the .env file at the root of the repository, without dependency
 // Exposes: readEnv(file?) -> { KEY: value }, keysOf(file)
 //
-// Format: KEY=value per line, `#` for a comment line, optional quotes around
+// Format: `KEY=value` per line, `#` for a comment line, optional quotes around
 // the value. A variable already set in the process environment wins over
 // the file (CI, one-off override).
 import fs from 'node:fs';

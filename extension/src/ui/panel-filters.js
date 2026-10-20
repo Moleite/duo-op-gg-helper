@@ -1,7 +1,7 @@
 // panel-filters.js - Filters tab of the panel: my position, my rank, rules, sorting, Show more
 // Exposes: DuoGG.panelFilters.create(actions) -> { el, update(view) }
 //
-// The controls are built once, from D.RULES and D.SORTS: a rule added to the
+// The controls are built once, from `D.RULES` and `D.SORTS`: a rule added to the
 // registry shows here without any other code.
 (function (D) {
   const h = D.h;

@@ -1,4 +1,4 @@
-// rules.test.mjs - Each rule of D.RULES, the engine and the sorts
+// rules.test.mjs - Each rule of `D.RULES`, the engine and the sorts
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { load, CONTENT } from './helpers/ext.mjs';
