@@ -19,6 +19,15 @@
     storage: globalThis.chrome && globalThis.chrome.storage ? globalThis.chrome.storage.local : null,
     fetch: (...a) => globalThis.fetch(...a),
     now: () => Date.now(),
+    // Version of manifest.json on the disk. getManifest() gives the version
+    // read when Chrome loaded the extension: after a git pull, the disk is
+    // newer until the reload.
+    diskVersion: async () => {
+      try {
+        const r = await globalThis.fetch(globalThis.chrome.runtime.getURL('manifest.json'), { cache: 'no-store' });
+        return (await r.json()).version || null;
+      } catch (e) { return null; }
+    },
     // Delay between an operation and its push: a burst of clicks becomes one
     // wake-up of the database. 0 disables the automatic push (tests).
     pushDelayMs: 1500
@@ -107,6 +116,8 @@
         return pageOpen(msg.account || null);
       case 'sync':
         return sync();
+      case 'version':
+        return { loaded: D.version, disk: await env.diskVersion() };
       case 'secret.set': {
         if (fromTab(sender)) throw new Error('Secret refused from a tab.');
         const url = String(msg.neonUrl || '').trim();

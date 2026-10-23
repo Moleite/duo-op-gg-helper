@@ -11,8 +11,10 @@ Look for the symptom or the exact message. The most frequent case comes first in
 | ------- | ----- | --- |
 | the panel does not appear | extension not reloaded, or loaded folder = root of the repository | load the `extension/` folder, ↻, then F5 on the page of the site |
 | the panel does not appear, the table is empty | no post shown: the panel hides without posts | change a native filter of the site |
-| a code change has no effect | Chrome runs the working folder of the last reload | ↻ on the card of the extension, F5, compare the version at the bottom of the panel |
-| `Extension reloaded: reload the page (F5).` | the extension was reloaded under an open page | F5 on the page of the site |
+| a code change has no effect | Chrome runs the working folder of the last reload | follow the banner of the popup: ↻ on the card of the extension, then F5 |
+| `Version X available: …` in the popup or the panel | `git pull` without a reload of the extension | ↻ on the card of the extension, then F5 ([`run/getting-started.md`](run/getting-started.md#update-notices)) |
+| `no script on this page` in the popup | page of the site opened before the extension was loaded | F5 on the page of the site |
+| `Extension reloaded: this panel no longer saves anything. F5 on the page of the site.` | the extension was reloaded under an open page | F5 on the page of the site |
 | `Service worker unreachable: …` in the popup | error while loading `background.js` | `chrome://extensions`, Service worker link, read the console |
 | posts with empty fields stay visible while a filter is set | unreadable data: the rule does not hide without data | [`filters/rules.md`](filters/rules.md#principles) |
 | sorting changes nothing | sort `Site order` selected | pick another sort in the Filters tab |

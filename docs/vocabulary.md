@@ -15,6 +15,7 @@ Each notion has one name in the documentation, in the comments and in the interf
 | page of the site | Tab open on duo.op.gg, where the content script runs. | site, tab alone |
 | row action bar | ⛔ and 🙈 buttons that follow the hovered row (`#duogg-tools`). | toolbar |
 | recompute | One run of `recompute()`: rules, attributes, panel. | refresh, render |
+| update notice | Amber banner of the panel or the popup: reload the extension, or F5 on the page of the site. | update popup |
 
 ## Posts
 

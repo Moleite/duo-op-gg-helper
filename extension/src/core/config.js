@@ -36,6 +36,13 @@
     // (docs/project/todo.md).
     announce: {
       warnLength: 200
+    },
+
+    // The panel asks the service worker for the version on the disk when the
+    // site opens, then at most at this pace. The service worker reads a local
+    // file: no network.
+    version: {
+      checkMs: 10 * 60 * 1000
     }
   };
 

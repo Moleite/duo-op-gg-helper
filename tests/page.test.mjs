@@ -43,6 +43,8 @@ const D = load(WORKER.concat(CONTENT));
 D.worker.env.storage = store;
 D.secrets.env.indexedDB = () => idb;
 D.worker.env.pushDelayMs = 0;
+let disk = 'test';
+D.worker.env.diskVersion = async () => disk;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms || 30));
 const rows = () => D.extract.rows(document);
 const state = (st) => rows().filter((li) => li.getAttribute('data-duogg') === st).length;
@@ -116,4 +118,33 @@ test('no loop: without a mutation of the site, no new scan', async () => {
   await wait(500);
   D.extract.rows = orig;
   assert.equal(n, 0);
+});
+
+// The panel lives in a closed shadow root: the banner is read through the
+// text of its update, here the state of the app.
+test('the content script answers the ping of the popup with its version', () => {
+  const replies = [];
+  chrome.runtime.onMessage.listeners.forEach((l) => l({ type: 'ping' }, {}, (r) => replies.push(r)));
+  assert.deepEqual(replies, [{ v: D.version }]);
+});
+
+test('a newer version on the disk sets the notice of the panel', async () => {
+  disk = '9.9.9';
+  D.app.state.versionAt = 0;
+  D.app.scan();
+  await until(() => /Version 9\.9\.9 available/.test(D.app.state.notice));
+  assert.equal(D.app.state.notice, 'Version 9.9.9 available: reload the extension (chrome://extensions, \u21bb), then F5 on the page of the site.');
+  disk = D.version;
+  D.app.state.versionAt = 0;
+  D.app.scan();
+  await until(() => D.app.state.notice === '');
+  assert.equal(D.app.state.notice, '');
+});
+
+test('extension reloaded under the page: the panel says F5', () => {
+  const id = chrome.runtime.id;
+  delete chrome.runtime.id;
+  D.app.scan();
+  assert.equal(D.app.state.notice, D.ORPHAN);
+  chrome.runtime.id = id;
 });

@@ -17,7 +17,7 @@
     extra: [], cursor: null, apiById: new Map(),
     manual: new Set(),
     more: { loading: false, message: '', error: '', available: false },
-    panel: null, timer: null, last: null
+    panel: null, timer: null, last: null, notice: '', versionAt: 0
   };
 
   // Posts of the site, completed by the API when it knows them (full list of
@@ -37,6 +37,8 @@
   }
 
   function scan() {
+    if (orphaned()) st.notice = D.ORPHAN;
+    else if (Date.now() - st.versionAt >= D.config.version.checkMs) checkVersion();
     const rows = D.extract.rows(document);
     const sig = rows.map(D.extract.partnerIdOf).join(',');
     const key = JSON.stringify(D.extract.pageState(document, location));
@@ -50,6 +52,24 @@
     const account = D.extract.accountName(document);
     if (account !== st.account) { st.account = account; pageOpen(account); }
     recompute();
+  }
+
+  // ---- Update notice ---------------------------------------------------------
+  // After a reload of the extension, this content script can no longer reach
+  // Chrome: the panel says F5. A newer manifest.json on the disk: the panel
+  // says to reload the extension (src/core/version.js).
+  function orphaned() {
+    const r = globalThis.chrome && globalThis.chrome.runtime;
+    return !r || !r.id;
+  }
+
+  function checkVersion() {
+    st.versionAt = Date.now();
+    D.client.send({ type: 'version' }).then((r) => {
+      const n = D.versionNotice({ loaded: r.loaded, disk: r.disk, tab: D.version });
+      const text = n.warn ? n.text : '';
+      if (text !== st.notice) { st.notice = text; recompute(); }
+    }).catch(() => { /* unreachable worker: the next operation says it */ });
   }
 
   function recompute() {
@@ -67,7 +87,7 @@
     st.last = { list: list, result: result };
     const root = document.getElementById('duogg-root');
     if (root) root.style.display = st.dom.length || st.extra.length ? '' : 'none';
-    st.panel.update({ db: st.db, neon: st.neon, filters: filters, result: result, totals: totals, more: st.more });
+    st.panel.update({ db: st.db, neon: st.neon, filters: filters, result: result, totals: totals, more: st.more, notice: st.notice });
   }
 
   function schedule() {
@@ -191,6 +211,11 @@
   };
 
   function start() {
+    // The popup asks which version this page runs: an F5 replaces a content
+    // script, a reload of the extension does not.
+    chrome.runtime.onMessage.addListener((msg, sender, reply) => {
+      if (msg && msg.type === 'ping') reply({ v: D.version });
+    });
     D.style.injectPage(document);
     st.panel = D.panel.mount(actions);
     D.rows.mountTools(onRowAction);

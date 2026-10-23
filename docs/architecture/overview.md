@@ -31,7 +31,7 @@ Each layer depends only on the layers above it in this table.
 
 | Folder | Modules | Role |
 | ------ | ------- | ---- |
-| `extension/src/core/` | `config`, `lol`, `announce` | constants, positions and ranks, post note |
+| `extension/src/core/` | `config`, `version`, `lol`, `announce` | constants, update notices, positions and ranks, post note |
 | `extension/src/data/` | `selectors`, `extract`, `api` | a post from the DOM or from the API |
 | `extension/src/filters/` | `rules`, `engine` | rule registry, evaluation and sorting, without DOM |
 | `extension/src/store/` | `model`, `sql`, `neon`, `secrets`, `worker`, `client` | local database, SQL, HTTP client, connection string, service worker |

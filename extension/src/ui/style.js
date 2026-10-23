@@ -52,6 +52,8 @@
 .tabs button.on{color:#fff;border-bottom-color:#00bba3}
 .body{overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
 .collapsed .tabs,.collapsed .body,.collapsed .foot{display:none}
+.notice{padding:7px 10px;background:#f0b232;color:#1c1c1f;font-weight:700;font-size:11px;line-height:1.4}
+.notice:empty{display:none}
 .row{display:flex;align-items:center;gap:8px}
 .row>label{flex:1;color:#cfcfd6}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}

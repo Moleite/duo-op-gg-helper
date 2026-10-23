@@ -108,6 +108,12 @@ test('Neon error: the row stays to push and the error is shown', async () => {
   assert.match(st.db.sync.error, /duogg_unknown/);
 });
 
+test('version: the version loaded and the version on the disk', async () => {
+  const b = browser(await database());
+  W.env.diskVersion = async () => '9.9.9';
+  assert.deepEqual(await b({ type: 'version' }, TAB), { loaded: D.version, disk: '9.9.9' });
+});
+
 test('unknown message: explicit error', async () => {
   const b = browser(await database());
   await assert.rejects(b({ type: 'anything' }), /Unknown message/);
