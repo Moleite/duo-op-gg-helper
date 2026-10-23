@@ -35,7 +35,8 @@ After a `git pull`, three pieces of code can differ: the files on the disk, the 
 
 The reload of the extension comes first. An F5 before it keeps the old list of content scripts.
 
-- The popup reads `manifest.json` through the service worker, and asks the content script of the active tab for its version (`ping`).
+- The popup reads `manifest.json` itself, and asks the content script of the active tab for its version (`ping`). The service worker can still run the previous version: the popup does not depend on it. `src: extension/popup.js#async function diskVersion()`
+- The panel cannot read a file of the extension: it asks the service worker (message `version`).
 - The panel asks the service worker when the site opens, then at most every `config.version.checkMs` (10 min), at the next scan. The service worker reads a local file: no network. `src: extension/src/store/worker.js#case 'version':`
 - The banner of the panel stays visible while the panel is collapsed.
 

@@ -50,10 +50,21 @@
 
   // Version line of the header, and a banner when a reload is due: new
   // version on the disk, or a page of the site that runs old code.
+  // The popup reads manifest.json itself, like BotEd_MDF. Its code comes
+  // from the disk at each opening, while the service worker can still run
+  // the previous version: before 2.2.0 it did not know the `version` message,
+  // and a stale extension went unnoticed.
+  async function diskVersion() {
+    try {
+      const r = await fetch(chrome.runtime.getURL('manifest.json'), { cache: 'no-store' });
+      return (await r.json()).version || null;
+    } catch (e) { return null; }
+  }
+
   async function renderVersion() {
     let disk = null;
     let page = null;
-    try { disk = (await D.client.send({ type: 'version' })).disk; } catch (e) { /* worker unreachable: said below */ }
+    disk = await diskVersion();
     try {
       const [t] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (t && /^https:\/\/duo\.op\.gg\//.test(t.url || '')) {
