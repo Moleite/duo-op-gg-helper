@@ -29,6 +29,7 @@ A setting lives at one of four levels. The level depends on who changes the valu
 | `config.neon.pullTtlMs` | 6 h | Age of the local cache above which opening the site triggers a pull. |
 | `config.neon.requestTimeoutMs` | 15 s | Maximum duration of a Neon call. |
 | `config.announce.warnLength` | 200 | Note length shown in amber. The limit of the site is unknown. |
+| `config.version.checkMs` | 10 min | Pace at which the panel asks for the version on the disk. A pull while the site is open shows within this delay. |
 
 `src: extension/src/core/config.js#maxPagesPerClick: 4`
 

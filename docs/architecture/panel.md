@@ -39,6 +39,7 @@ The rows stay in the DOM, in the order of React. `src: extension/src/ui/rows.js#
 | rule | one line per entry of `DuoGG.RULES`: checkbox, label, threshold, counter | `panel-filters.js`, built from the registry |
 | counter | number of posts hidden by a rule | `.count`, red (`.hit`) when the rule hides posts |
 | status message | under a button or a card | `.hint` neutral, `.hint.ok` green, `.hint.warn` amber, `.hint.err` red |
+| update notice | banner under the header of the panel and of the popup | `.notice`, amber, text of `DuoGG.versionNotice()` or `DuoGG.ORPHAN` ([`../run/getting-started.md`](../run/getting-started.md#update-notices)) |
 | secret field | Neon connection string | `popup-neon.js` |
 | row action | ⛔ blacklist, 🙈 hide | bar on hover (`rows.mountTools`), buttons of the `#duogg-more` rows |
 

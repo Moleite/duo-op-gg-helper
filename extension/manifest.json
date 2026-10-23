@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DuoGG helper",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Filters, sorting, blacklist and extended search for the duo table of duo.op.gg.",
   "permissions": ["storage"],
   "host_permissions": [
@@ -31,6 +31,7 @@
       "run_at": "document_idle",
       "js": [
         "src/core/config.js",
+        "src/core/version.js",
         "src/core/lol.js",
         "src/core/announce.js",
         "src/data/selectors.js",

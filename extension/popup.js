@@ -45,11 +45,33 @@
   function refresh(s) {
     if (!s || !s.db) return;
     state = s;
-    document.getElementById('version').textContent = 'v' + D.version;
     Object.values(views).forEach((v) => v.update(state));
   }
 
+  // Version line of the header, and a banner when a reload is due: new
+  // version on the disk, or a page of the site that runs old code.
+  async function renderVersion() {
+    let disk = null;
+    let page = null;
+    try { disk = (await D.client.send({ type: 'version' })).disk; } catch (e) { /* worker unreachable: said below */ }
+    try {
+      const [t] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (t && /^https:\/\/duo\.op\.gg\//.test(t.url || '')) {
+        try {
+          const r = await chrome.tabs.sendMessage(t.id, { type: 'ping' });
+          page = (r && r.v) || 'none';
+        } catch (e) { page = 'none'; }
+      }
+    } catch (e) { /* no active tab */ }
+    const n = D.versionNotice({ loaded: D.version, disk: disk, tab: page });
+    document.getElementById('version').textContent = n.warn ? 'v' + D.version : n.text;
+    const box = document.getElementById('notice');
+    box.textContent = n.text;
+    box.hidden = !n.warn;
+  }
+
   show(tab);
+  renderVersion();
   D.client.send({ type: 'state' }).then(refresh).catch((e) => {
     main.prepend(h('div', { class: 'hint err' }, 'Service worker unreachable: ' + e.message));
   });

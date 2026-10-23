@@ -37,11 +37,24 @@ export function storage() {
 }
 
 // chrome.runtime and chrome.storage wired to the worker of the extension.
-export function chromeFor(getWorker, store, sender) {
+// tabs.query answers with `tab`; tabs.sendMessage with tab.ping, or no
+// receiver.
+export function chromeFor(getWorker, store, sender, tab) {
   return {
+    tabs: {
+      query: async () => (tab ? [tab] : []),
+      sendMessage: async () => {
+        if (!tab || !tab.ping) throw new Error('Could not establish connection. Receiving end does not exist.');
+        return tab.ping;
+      }
+    },
     runtime: {
+      // Chrome removes runtime.id under a content script once the extension
+      // reloads: a test deletes it to play that case.
+      id: 'test-extension',
       getManifest: () => ({ version: 'test' }),
-      onMessage: { addListener() {} },
+      // Listeners of the content script, called by a test.
+      onMessage: { listeners: [], addListener(l) { this.listeners.push(l); } },
       async sendMessage(msg) {
         try {
           return { ok: true, result: await getWorker().handle(msg, sender || { tab: { id: 1 } }) };

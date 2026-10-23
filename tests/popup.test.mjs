@@ -16,7 +16,7 @@ const { window, document } = parseHTML(html);
 const store = storage();
 const idb = new IDBFactory();
 Object.assign(globalThis, { window: window, document: document, localStorage: undefined,
-  chrome: chromeFor(() => globalThis.DuoGG.worker, store, {}) });
+  chrome: chromeFor(() => globalThis.DuoGG.worker, store, {}, { id: 4, url: 'https://duo.op.gg/en/lol/' }) });
 const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]);
 const D = load(WORKER.concat(scripts.filter((s) => s !== 'popup.js')));
 D.worker.env.storage = store;
@@ -29,6 +29,12 @@ test('the three tabs are shown', async () => {
   await until(() => /No connection string saved/.test(document.body.textContent));
   assert.deepEqual([...document.querySelectorAll('nav button')].map((b) => b.textContent), ['Profiles', 'Blacklist', 'Neon']);
   assert.match(document.body.textContent, /No connection string saved/);
+});
+
+test('a page of the site without an answer to the ping: banner F5', async () => {
+  await until(() => !document.getElementById('notice').hidden);
+  assert.equal(document.getElementById('notice').textContent, 'vtest \u00b7 no script on this page: F5 on the page of the site.');
+  assert.equal(document.getElementById('version').textContent, 'vtest');
 });
 
 test('blacklist import in the v1 format', async () => {

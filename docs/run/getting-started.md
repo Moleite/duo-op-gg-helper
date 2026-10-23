@@ -1,6 +1,6 @@
 # Getting started
 
-> **Answers**: installing the extension · reloading it after a change · setting up Neon · preparing a development machine.
+> **Answers**: installing the extension · reloading it after a change · what the update notices mean · setting up Neon · preparing a development machine.
 > **Does not answer**: creating the database → [`../database/neon.md`](../database/neon.md) · running the tests → [`tests.md`](tests.md)
 
 ## Loading the extension
@@ -20,7 +20,24 @@
 | `extension/popup.*` | close and reopen the popup |
 | `extension/background.js`, `extension/src/store/worker.js` | ↻ on the card of the extension |
 
-The version of the loaded code shows at the bottom of the panel (`v2.0.0`) and at the top of the popup.
+The version of the loaded code shows at the bottom of the panel (`v2.2.0`) and at the top of the popup.
+
+## Update notices
+
+After a `git pull`, three pieces of code can differ: the files on the disk, the extension loaded by Chrome, and the content script of each page of the site. The popup and the panel say which reload is due, in an amber banner. The rules are the ones of BotEd_MDF. `src: extension/src/core/version.js#D.versionNotice = function (v)`
+
+| Banner | Cause | Action |
+| ------ | ----- | ------ |
+| `Version X available: reload the extension (chrome://extensions, ↻), then F5 on the page of the site.` | `manifest.json` on the disk is newer than the extension loaded | ↻ on the card of the extension, then F5 |
+| `vX · no script on this page: F5 on the page of the site.` (popup) | the page opened before the extension, or runs a script older than 2.2.0 | F5 on the page of the site |
+| `vX · this page runs vY: F5 on the page of the site.` (popup) | the content script of the page is older than the extension | F5 on the page of the site |
+| `Extension reloaded: this panel no longer saves anything. F5 on the page of the site.` (panel) | the extension was reloaded under the page: the content script can no longer reach Chrome | F5 on the page of the site |
+
+The reload of the extension comes first. An F5 before it keeps the old list of content scripts.
+
+- The popup reads `manifest.json` through the service worker, and asks the content script of the active tab for its version (`ping`).
+- The panel asks the service worker when the site opens, then at most every `config.version.checkMs` (10 min), at the next scan. The service worker reads a local file: no network. `src: extension/src/store/worker.js#case 'version':`
+- The banner of the panel stays visible while the panel is collapsed.
 
 ## First use
 

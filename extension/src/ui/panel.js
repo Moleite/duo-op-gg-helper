@@ -36,7 +36,9 @@
     const tabsBar = h('div', { class: 'tabs' });
     const body = h('div', { class: 'body' });
     const foot = h('div', { class: 'foot' });
-    const panel = h('div', { class: 'panel' }, head, tabsBar, body, foot);
+    // Under the header: a collapsed panel still shows that a reload is due.
+    const notice = h('div', { class: 'notice' });
+    const panel = h('div', { class: 'panel' }, head, notice, tabsBar, body, foot);
     root.appendChild(panel);
 
     const tabs = {
@@ -101,6 +103,7 @@
       if (!dragging && view.db.ui && view.db.ui.panel) ui = Object.assign({}, ui, view.db.ui.panel);
       renderProfiles(view.db);
       layout();
+      notice.textContent = view.notice || '';
       TABS.forEach(([id]) => tabs[id].update(view, root));
       const s = view.db.sync || {};
       const neon = !view.neon || !view.neon.configured ? 'Neon: not configured'

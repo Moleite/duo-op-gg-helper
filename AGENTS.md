@@ -63,7 +63,7 @@ extension/               folder loaded by Chrome (chrome://extensions)
   manifest.json          order of the content scripts = order of the dependencies
   background.js          service worker: only writer of the storage, only Neon client
   popup.html, popup.js   profiles, blacklist import, connection string
-  src/core/              config, lol (positions, ranks), announce
+  src/core/              config, version (update notices), lol (positions, ranks), announce
   src/data/              selectors, extract (DOM), api (GraphQL of the site)
   src/filters/           rules (registry), engine (evaluation, sorting)
   src/store/             model (pure), sql, neon, secrets, worker, client

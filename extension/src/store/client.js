@@ -7,7 +7,8 @@
 (function (D) {
   function explain(e) {
     const m = String((e && e.message) || e);
-    if (/Extension context invalidated/i.test(m)) return 'Extension reloaded: reload the page (F5).';
+    // Same text as the banner of the panel (src/core/version.js).
+    if (/Extension context invalidated/i.test(m)) return D.ORPHAN;
     return m;
   }
 
