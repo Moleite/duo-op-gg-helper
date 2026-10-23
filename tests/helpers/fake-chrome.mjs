@@ -52,6 +52,7 @@ export function chromeFor(getWorker, store, sender, tab) {
       // Chrome removes runtime.id under a content script once the extension
       // reloads: a test deletes it to play that case.
       id: 'test-extension',
+      getURL: (p) => 'chrome-extension://test-extension/' + p,
       getManifest: () => ({ version: 'test' }),
       // Listeners of the content script, called by a test.
       onMessage: { listeners: [], addListener(l) { this.listeners.push(l); } },

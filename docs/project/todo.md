@@ -21,7 +21,7 @@ These readings decide between two paths, to choose with them:
 
 ## Open checks
 
-- Update notice: with the extension loaded, raise the version in `extension/manifest.json` without a reload, then open the popup. Expected: `Version X available: reload the extension (chrome://extensions, ↻), then F5 on the page of the site.` BotEd_MDF reads the file from its popup; here the service worker reads it, for the panel too.
+- Update notice: with the extension loaded, raise the version in `extension/manifest.json` without a reload, then open the popup. Expected: `Version X available: reload the extension (chrome://extensions, ↻), then F5 on the page of the site.` The popup reads the file itself, like BotEd_MDF. The panel asks the service worker, which reads the same file: open the site too.
 - Move of a 2.0.2 connection string, on a real Chrome profile: after the reload, the Neon tab of the popup shows the role without a new paste. In the DevTools of the service worker, Application tab, the IndexedDB `duogg-secrets` holds `neonUrl`, and `await chrome.storage.local.get()` has no `secrets` key.
 - Rank table: compare it with the game client, Master and above first ([`../filters/ranks.md`](../filters/ranks.md#reliability)).
 - Verified only filter: its state is not read, so Show more does not send `isAuth`. It needs a capture with the filter on (`DOM/raw-1.1_FIND-DUO-VERIFIED.html`).

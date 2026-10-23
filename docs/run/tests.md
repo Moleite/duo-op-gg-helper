@@ -25,6 +25,7 @@ node --test tests/rules.test.mjs   # one file
 | `tests/db.test.mjs` | `db/schema.sql`, `db/grants.sql` and the queries of the extension in Postgres, RLS included |
 | `tests/worker.test.mjs` | service worker: secret out of `chrome.storage.local`, move of a 2.0.2 string, sync between two browsers, Neon error, version on the disk |
 | `tests/page.test.mjs` | full content script on a capture: hiding, dimming, sorting, blacklist, Show more, no loop, ping, update notice, extension reloaded under the page |
+| `tests/popup-version.test.mjs` | popup opened while Chrome runs the previous version: the banner asks for a reload of the extension |
 | `tests/popup.test.mjs` | popup loaded from `popup.html`: banner of a page without a script, import, profile |
 | `tests/version.test.mjs` | texts of the update notices, reload of the extension before F5 |
 | `tests/style.test.mjs` | extraction of the code comments that `npm run check` style-checks, forbidden patterns |
